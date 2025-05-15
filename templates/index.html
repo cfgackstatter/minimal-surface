@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Minimal Surface Visualization</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- Plotly.js for interactive 3D visualization -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -35,11 +37,13 @@
                     <div class="form-group">
                         <label for="colormap">Color Map</label>
                         <select id="colormap" name="colormap">
-                            <option value="">Monochrome</option>
-                            <option value="viridis">Viridis</option>
-                            <option value="plasma">Plasma</option>
-                            <option value="inferno">Inferno</option>
-                            <option value="magma">Magma</option>
+                            <option value="Viridis">Viridis</option>
+                            <option value="Plasma">Plasma</option>
+                            <option value="Inferno">Inferno</option>
+                            <option value="Magma">Magma</option>
+                            <option value="Cividis">Cividis</option>
+                            <option value="Blues">Blues</option>
+                            <option value="Greens">Greens</option>
                         </select>
                     </div>
                     
@@ -49,21 +53,20 @@
                     </div>
                     
                     <div class="form-group">
-                        <button type="submit" id="generate-btn">Generate</button>
+                        <button type="button" id="generate-btn">Generate</button>
                     </div>
                 </div>
             </form>
         </section>
         
         <section class="visualization">
-            <div class="surface-container" id="surface-display">
-                <div class="placeholder">
-                    <p>Surface will appear here</p>
-                </div>
-            </div>
+            <div id="surface-display" class="plotly-container"></div>
             <div class="loading" id="loading-indicator" style="display: none;">
                 <div class="spinner"></div>
                 <p>Generating surface...</p>
+            </div>
+            <div class="instructions">
+                <p>Drag to rotate | Scroll to zoom | Shift+drag to pan</p>
             </div>
         </section>
     </div>
