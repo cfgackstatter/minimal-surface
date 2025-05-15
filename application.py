@@ -7,14 +7,12 @@ A Flask web application for visualizing minimal surfaces.
 from flask import Flask, render_template, request, jsonify, send_from_directory
 import numpy as np
 import os
-from scipy.special import beta
-from pyweierstrass.weierstrass import wp, wpprime, wzeta, omega_from_g
 
 # Initialize Flask application
 application = Flask(__name__)  # 'application' is required by Elastic Beanstalk
 
 # Import surface functions from minimal_surface package
-from minimal_surface.surface import chen_gackstatter_surface, enneper_surface
+from minimal_surface.surface import chen_gackstatter_surface_parallel, enneper_surface
 
 @application.route('/')
 def index():
@@ -43,7 +41,7 @@ def generate_data():
             r, theta = np.meshgrid(r, theta)
             
             # Generate the surface
-            X, Y, Z = chen_gackstatter_surface(r, theta)
+            X, Y, Z = chen_gackstatter_surface_parallel(r, theta)
             title = 'Chen-Gackstatter Minimal Surface'
             
         elif surface_type == 'enneper':

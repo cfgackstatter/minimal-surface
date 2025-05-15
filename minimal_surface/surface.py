@@ -10,6 +10,7 @@ from typing import Tuple, Union, Optional
 from pyweierstrass.weierstrass import wp, wpprime, wzeta, omega_from_g
 from scipy.special import beta
 from functools import lru_cache
+from concurrent.futures import ProcessPoolExecutor
 
 # Vectorized version of Weierstrass functions for better performance
 def vectorized_wp(z, omega):
@@ -72,6 +73,49 @@ def chen_gackstatter_surface(
             X[i, j] = float(np.real(np.pi * z - w_zeta - np.pi / g2 * w_p_prime))
             Y[i, j] = float(np.imag(np.pi * z + w_zeta - np.pi / g2 * w_p_prime))
             Z[i, j] = float(np.real(w_p) * np.sqrt(6 * np.pi / g2))
+    
+    return X, Y, Z
+
+def process_chunk(chunk_data):
+    r_chunk, theta_chunk, omega, g2 = chunk_data
+    result_X = np.zeros_like(r_chunk)
+    result_Y = np.zeros_like(r_chunk)
+    result_Z = np.zeros_like(r_chunk)
+    
+    for i in range(r_chunk.shape[0]):
+        for j in range(r_chunk.shape[1]):
+            z = r_chunk[i, j] * np.exp(1j * theta_chunk[i, j])
+            w_p = wp(z, omega)
+            w_p_prime = wpprime(z, omega)
+            w_zeta = wzeta(z, omega)
+            
+            result_X[i, j] = np.real(np.pi * z - w_zeta - np.pi / g2 * w_p_prime)
+            result_Y[i, j] = np.imag(np.pi * z + w_zeta - np.pi / g2 * w_p_prime)
+            result_Z[i, j] = np.sqrt(6 * np.pi / g2) * np.real(w_p)
+    
+    return (result_X, result_Y, result_Z)
+
+def chen_gackstatter_surface_parallel(r, theta, num_processes=4):
+    g2 = (beta(1/4, 1/4) / 2)**4
+    g3 = 0.0
+    omega = omega_from_g(g2, g3)
+    
+    # Split the grid into chunks
+    chunks = []
+    chunk_size = r.shape[0] // num_processes
+    for i in range(num_processes):
+        start = i * chunk_size
+        end = (i + 1) * chunk_size if i < num_processes - 1 else r.shape[0]
+        chunks.append((r[start:end], theta[start:end], omega, g2))
+    
+    # Process chunks in parallel
+    with ProcessPoolExecutor(max_workers=num_processes) as executor:
+        results = list(executor.map(process_chunk, chunks))
+    
+    # Combine results
+    X = np.vstack([res[0] for res in results])
+    Y = np.vstack([res[1] for res in results])
+    Z = np.vstack([res[2] for res in results])
     
     return X, Y, Z
 
