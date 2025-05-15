@@ -61,25 +61,65 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 
                 // Create the 3D surface plot with Plotly
-                const plotData = [{
-                    type: 'surface',
-                    x: data.x,
-                    y: data.y,
-                    z: data.z,
-                    colorscale: colormapSelect.value,
-                    lighting: {
-                        ambient: 0.8,
-                        diffuse: 0.8,
-                        roughness: 0.5,
-                        specular: 0.8,
-                        fresnel: 0.8
-                    },
-                    contours: {
-                        x: { show: true, width: 1 },
-                        y: { show: true, width: 1 },
-                        z: { show: true, width: 1 }
-                    }
-                }];
+                let plotData = [];
+                
+                if (colormapSelect.value === 'monochrome') {
+                    // Create a white surface with black grid lines
+                    plotData = [{
+                        type: 'surface',
+                        x: data.x,
+                        y: data.y,
+                        z: data.z,
+                        colorscale: [[0, 'rgb(255,255,255)'], [1, 'rgb(255,255,255)']],
+                        surfacecolor: Array(data.z.length).fill(Array(data.z[0].length).fill(0)),
+                        showscale: false,
+                        lighting: {
+                            ambient: 0.95,
+                            diffuse: 0.99,
+                            roughness: 0.01,
+                            specular: 0.01,
+                            fresnel: 0.01
+                        },
+                        contours: {
+                            x: { 
+                                show: true, 
+                                width: 1.5,
+                                color: 'rgb(0,0,0)'
+                            },
+                            y: { 
+                                show: true, 
+                                width: 1.5,
+                                color: 'rgb(0,0,0)'
+                            },
+                            z: { 
+                                show: true, 
+                                width: 1.5,
+                                color: 'rgb(0,0,0)'
+                            }
+                        }
+                    }];
+                } else {
+                    // Regular colored surface
+                    plotData = [{
+                        type: 'surface',
+                        x: data.x,
+                        y: data.y,
+                        z: data.z,
+                        colorscale: colormapSelect.value,
+                        lighting: {
+                            ambient: 0.8,
+                            diffuse: 0.8,
+                            roughness: 0.5,
+                            specular: 0.8,
+                            fresnel: 0.8
+                        },
+                        contours: {
+                            x: { show: false },
+                            y: { show: false },
+                            z: { show: false }
+                        }
+                    }];
+                }
                 
                 const layout = {
                     title: data.title,
@@ -89,10 +129,23 @@ document.addEventListener('DOMContentLoaded', function() {
                         camera: {
                             eye: { x: 1.5, y: 1.5, z: 1.5 }
                         },
-                        xaxis: { showticklabels: false },
-                        yaxis: { showticklabels: false },
-                        zaxis: { showticklabels: false }
-                    }
+                        xaxis: { 
+                            showticklabels: false, visible: false, showgrid: false, zeroline: false,
+                            gridcolor: colormapSelect.value === 'monochrome' ? 'black' : 'white',
+                            zerolinecolor: colormapSelect.value === 'monochrome' ? 'black' : 'white'
+                        },
+                        yaxis: { 
+                            showticklabels: false, visible: false, showgrid: false, zeroline: false,
+                            gridcolor: colormapSelect.value === 'monochrome' ? 'black' : 'white',
+                            zerolinecolor: colormapSelect.value === 'monochrome' ? 'black' : 'white'
+                        },
+                        zaxis: { 
+                            showticklabels: false, visible: false, showgrid: false, zeroline: false,
+                            gridcolor: colormapSelect.value === 'monochrome' ? 'black' : 'white',
+                            zerolinecolor: colormapSelect.value === 'monochrome' ? 'black' : 'white'
+                        },
+                        bgcolor: 'white'
+                    },
                 };
                 
                 const config = {
