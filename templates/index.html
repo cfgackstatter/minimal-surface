@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minimal Surface Visualization</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Minimal Surface Visualization</h1>
+        <p>Generate and visualize mathematical minimal surfaces</p>
+        
+        <form action="/generate" method="post">
+            <div class="form-group">
+                <label for="surface_type">Surface Type:</label>
+                <select id="surface_type" name="surface_type">
+                    <option value="chen-gackstatter">Chen-Gackstatter</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="resolution">Resolution:</label>
+                <input type="range" id="resolution" name="resolution" min="20" max="100" value="50">
+                <span id="resolution_value">50</span>
+            </div>
+            
+            <div class="form-group">
+                <label for="colormap">Color Map:</label>
+                <select id="colormap" name="colormap">
+                    <option value="">None (White)</option>
+                    <option value="viridis">Viridis</option>
+                    <option value="plasma">Plasma</option>
+                    <option value="inferno">Inferno</option>
+                    <option value="magma">Magma</option>
+                    <option value="cividis">Cividis</option>
+                </select>
+            </div>
+            
+            <button type="submit">Generate Surface</button>
+        </form>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

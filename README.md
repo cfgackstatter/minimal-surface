@@ -1,74 +1,90 @@
-# Minimal Surface Visualization
+# Minimal Surface Visualization Web App
 
-This project provides tools for calculating and visualizing Chen-Gackstatter minimal surfaces using Weierstrass elliptic functions.
+A web application for visualizing Chen-Gackstatter minimal surfaces using Weierstrass elliptic functions.
 
-![Chen-Gackstatter Surface](examples/chen_gackstatter.png)
+![Chen-Gackstatter Surface](static/images/chen_gackstatter.png)
+
+## Description
+
+This web application allows users to generate and visualize mathematical minimal surfaces. Users can customize parameters such as resolution and color mapping through a simple web interface.
+
+## Features
+
+- Interactive web interface for generating minimal surfaces
+- Customizable resolution and color mapping
+- High-quality 3D visualizations
+- Based on rigorous mathematical implementations using Weierstrass elliptic functions
 
 ## Installation
 
-Clone the repository and install the package:
+Clone the repository:
 
 ```console
-git clone https://github.com/cfgackstatter/minimal-surface.git
+git clone https://github.com/yourusername/minimal-surface.git
 cd minimal-surface
-pip install -e .
+```
+
+Install the required dependencies:
+
+```console
+pip install -r requirements.txt
+```
+
+## Running Locally
+
+To run the application locally:
+
+```console
+python application.py
+```
+
+Then open your web browser and navigate to `http://localhost:5000`.
+
+## Deploying to AWS Elastic Beanstalk
+
+1. Install the EB CLI:
+
+2. Initialize your EB CLI repository:
+
+```console
+eb init -p python-3.8 minimal-surface --region us-east-1
+```
+
+3. Create an environment and deploy:
+
+```console
+eb create minimal-surface-env
+```
+
+4. Open the deployed application:
+
+```console
+eb open
 ```
 
 ## Usage
 
-### Generate a Surface Image
+1. Select the surface type from the dropdown menu
+2. Adjust the resolution using the slider
+3. Choose a color map (or leave as default)
+4. Click "Generate Surface" to create the visualization
 
-The simplest way to use this package is to run the provided script:
+## Mathematical Background
 
-```console
-python scripts/generate_surface.py
-```
+The Chen-Gackstatter surface is a complete minimal surface of finite total curvature with genus 1 and 3 embedded flat ends. It can be viewed as a generalization of Enneper's surface with a handle.
 
-This will generate a PNG image of the Chen-Gackstatter minimal surface.
+The implementation uses Weierstrass elliptic functions to compute the surface coordinates based on the parametrization:
 
-### Use in Your Own Code
+- X = Re(π·z - ζ(z) - π/g₂·℘'(z))
+- Y = Im(π·z + ζ(z) - π/g₂·℘'(z))
+- Z = √(6π/g₂)·Re(℘(z))
 
-You can also use the package in your Python code:
+where ℘(z) is the Weierstrass p-function, ℘'(z) its derivative, and ζ(z) is the Weierstrass zeta function.
 
-```python
-import numpy as np
-import matplotlib.pyplot as plt
-from minimal_surface.surfaces import chen_gackstatter_surface
-from minimal_surface.visualization import plot_surface
-```
+## License
 
-#### Create a grid of points in polar coordinates
+MIT
 
-```python
-r = np.linspace(1/5, 4/5, 100)
-theta = np.linspace(-np.pi, np.pi, 100)
-r, theta = np.meshgrid(r, theta)
-```
+## Author
 
-#### Generate the surface
-
-```python
-X, Y, Z = chen_gackstatter_surface(r, theta)
-```
-
-#### Visualize the surface
-
-fig, ax = plot_surface(X, Y, Z, title="My Minimal Surface")
-plt.show()
-
-## Customization
-
-You can customize the visualization by passing additional parameters to the `plot_surface` function:
-
-```python
-plot_surface(
-X, Y, Z,
-title="Custom Minimal Surface",
-save_path="my_surface.png",
-view_angles=(30, -45) # (elevation, azimuth)
-)
-```
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
+Christoph Gackstatter
