@@ -9,7 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import io
 import base64
-from minimal_surface.surface import chen_gackstatter_surface, enneper_surface
+from minimal_surface.surface import chen_gackstatter_surface_parallel, enneper_surface
 import matplotlib
 matplotlib.use('Agg')  # Required for non-interactive backend
 
@@ -36,12 +36,12 @@ def generate_surface():
     # Generate surface
     if surface_type == 'chen-gackstatter':
         # Create a grid of points in polar coordinates
-        r = np.linspace(0.2, 0.8, resolution)
-        theta = np.linspace(-np.pi, np.pi, resolution)
+        r = np.linspace(0.2, 0.8, resolution, dtype=np.float32)
+        theta = np.linspace(-np.pi, np.pi, resolution, dtype=np.float32)
         r, theta = np.meshgrid(r, theta)
         
         # Generate the surface
-        X, Y, Z = chen_gackstatter_surface(r, theta)
+        X, Y, Z = chen_gackstatter_surface_parallel(r, theta)
         title = 'Chen-Gackstatter Minimal Surface'
         
     elif surface_type == 'enneper':
