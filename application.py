@@ -9,7 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import io
 import base64
-from minimal_surface.surface import chen_gackstatter_surface
+from minimal_surface.surface import chen_gackstatter_surface, enneper_surface
 import matplotlib
 matplotlib.use('Agg')  # Required for non-interactive backend
 
@@ -28,6 +28,8 @@ def generate_surface():
     surface_type = request.form.get('surface_type', 'chen-gackstatter')
     resolution = int(request.form.get('resolution', 50))
     colormap = request.form.get('colormap', '')
+    order = int(request.form.get('order', 1))  # For Enneper surface
+    
     if not colormap:
         colormap = None
     
@@ -40,46 +42,63 @@ def generate_surface():
         
         # Generate the surface
         X, Y, Z = chen_gackstatter_surface(r, theta)
+        title = 'Chen-Gackstatter Minimal Surface'
         
-        # Create plot
-        fig = plt.figure(figsize=(10, 8))
-        ax = fig.add_subplot(111, projection='3d')
+    elif surface_type == 'enneper':
+        # Create a grid of points for Enneper surface
+        u = np.linspace(-1.5, 1.5, resolution)
+        v = np.linspace(-1.5, 1.5, resolution)
+        u, v = np.meshgrid(u, v)
         
-        # Plot the surface with specified colormap or default style
-        if colormap:
-            norm = plt.Normalize(Z.min(), Z.max())
-            surf = ax.plot_surface(
-                X, Y, Z,
-                cmap=plt.get_cmap(colormap),
-                norm=norm,
-                linewidth=0.5,
-                antialiased=True
-            )
-            fig.colorbar(surf, ax=ax, shrink=0.5, aspect=5)
-        else:
-            surf = ax.plot_surface(
-                X, Y, Z,
-                color='white',
-                edgecolor='black',
-                shade=False
-            )
+        # Generate the surface
+        X, Y, Z = enneper_surface(u, v, n=order)
+        title = f'Enneper Minimal Surface (Order {order})'
         
-        # Customize the plot
-        ax.set_title('Chen-Gackstatter Minimal Surface', fontsize=14)
-        ax.set_axis_off()
-        ax.set_box_aspect([1, 1, 1])
-        ax.view_init(elev=30, azim=-30)
-        
-        # Convert plot to PNG image
-        img = io.BytesIO()
-        plt.savefig(img, format='png', bbox_inches='tight', pad_inches=0.1)
-        img.seek(0)
-        plot_url = base64.b64encode(img.getvalue()).decode('utf8')
-        plt.close(fig)
-        
-        return render_template('surface.html', plot_url=plot_url)
     else:
         return jsonify({"error": f"Surface type '{surface_type}' not implemented"}), 400
+    
+    # Create plot
+    fig = plt.figure(figsize=(10, 8))
+    ax = fig.add_subplot(111, projection='3d')
+    
+    # Plot the surface with specified colormap or default style
+    if colormap:
+        norm = plt.Normalize(Z.min(), Z.max())
+        surf = ax.plot_surface(
+            X, Y, Z,
+            cmap=plt.get_cmap(colormap),
+            norm=norm,
+            linewidth=0.5,
+            antialiased=True
+        )
+        fig.colorbar(surf, ax=ax, shrink=0.5, aspect=5)
+    else:
+        surf = ax.plot_surface(
+            X, Y, Z,
+            color='white',
+            edgecolor='black',
+            shade=False
+        )
+    
+    # Customize the plot
+    ax.set_title(title, fontsize=14)
+    ax.set_axis_off()
+    ax.set_box_aspect([1, 1, 1])
+    ax.view_init(elev=30, azim=-30)
+    
+    # Convert plot to PNG image
+    img = io.BytesIO()
+    plt.savefig(img, format='png', bbox_inches='tight', pad_inches=0.1)
+    img.seek(0)
+    plot_url = base64.b64encode(img.getvalue()).decode('utf8')
+    plt.close(fig)
+    
+    # For AJAX requests, return just the image
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return f'<img src="data:image/png;base64,{plot_url}" alt="{title}">'
+    
+    # For regular requests, return the full template
+    return render_template('surface.html', plot_url=plot_url)
 
 # Run the application
 if __name__ == "__main__":
